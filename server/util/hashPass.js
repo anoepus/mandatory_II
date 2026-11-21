@@ -11,6 +11,6 @@ async function run() {
   // Compare password against hash
   const isMatch = await bcrypt.compare(plainPassword, hash);
   console.log('Matches:', isMatch);
-}
+};
 
 run();

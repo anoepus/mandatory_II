@@ -16,7 +16,7 @@ export async function authLogin(req, res, next) {
 		return res.status(401).send({ error: "Invalid Credentials" });
 	};
 
-	req.session.user = user.username;
+	req.session.user = user.email;
 	console.log("user saved in session", req.session.user);
 	next();
 };

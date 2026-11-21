@@ -3,7 +3,7 @@ import { users } from "../db/users.js"; //fake db gemt in memory array
 import jwt from "jsonwebtoken";
 import { sendVerificationLink } from "../util/sendEmail.js";
 
-export function sendConfirmationEmail(req, res, next) {
+export function sendVerificationEmail(req, res, next) {
 	// TODO lookup user i DB før confirmation.
 	const user = users.find((u) => u.email === req.body.email);
 	if (user === undefined) {
