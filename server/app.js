@@ -17,10 +17,10 @@ app.use(session({
 }));
 
 /* ROUTERS */
-import authRouter from "./routers/auth.js";
-app.use(authRouter);
-import registerRouter from "./routers/signup.js";
-app.use(registerRouter);
+import loginRouter from "./routers/login.js";
+app.use(loginRouter);
+import signupRouter from "./routers/signup.js";
+app.use(signupRouter);
 
 const port = process.env.PORT || 3000;
 app.listen(port, (error) => {
