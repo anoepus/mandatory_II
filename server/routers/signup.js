@@ -8,22 +8,22 @@ let users = [
 		"username": "admin",
 		"password": "$2b$14$uAMLIBIUQXelScTEuFPq2.AiTBbfCfBi4MowMA7.ZACI5goDmq.Om",
 		"isVerified": true
+	},
+	{
+		id: 2,
+		email: 'anoepsundahl@gmail.com',
+		username: 'anoep',
+		password: '$2b$14$CPIEsmQOh.Gm2afQvO78muU6ChPsk3BgwqwkC8OHelbR.pVxXD0he',
+		isVerified: false
 	}
 ];
 
-router.post("/auth/register", saveUser, (req, res) => {
-	res.status(201).send({ data: "Registered successfully" });
+router.post("/auth/register", saveUser, sendConfirmationEmail, (req, res) => {
+	res.status(201).send({ data: "Registered successfully, please verify your email" });
 });
 
-router.get("/auth/verify", (req, res) => {
-	const jwtToken = req.query;
-	console.log(jwtToken.token);
-
-	const decodedEmail = jwt.verify(jwtToken.token, process.env.JWT_ACCESS_TOKEN);
-	 
-	const user = users.find((u) => u.email === decodedEmail);
-	user.isVerified = true;
-
+router.get("/auth/verify", verifyEmail, (req, res) => {
+	res.send({ data: `Email has been verified!` });
 });
 
 import jwt from "jsonwebtoken";
@@ -34,7 +34,7 @@ function sendConfirmationEmail(req, res, next) {
 
 	if (user === undefined) {
 		console.log("User was not created successfully");
-		return res.status(404).send({ data: "User not found! Try registering again"});
+		return res.status(404).send({ data: "User not found! Try registering again" });
 	};
 
 	const emailToken = jwt.sign({
@@ -50,8 +50,29 @@ function sendConfirmationEmail(req, res, next) {
 		to: user.email,
 		subject: "Verify your email",
 		html: `Hello ${user.username}!\nPlease click the following link to verify your email:\n✨<a href="${verificationUrl}">${verificationUrl}</a>✨`,
-	}
-	transporter.sendMail({ options });
+	};
+	transporter.sendMail(options);
+	next();
+}
+
+function verifyEmail(req, res, next) {
+	const jwtToken = req.query;
+	const decodedEmail = jwt.verify(jwtToken.token, process.env.JWT_ACCESS_TOKEN);
+
+	console.log(decodedEmail);
+
+	//erstat med DB lookup
+	const user = users.find((u) => u.email === decodedEmail.email);
+
+	console.log(user);
+
+	if (!user) {
+		console.log("User was not created successfully");
+		return res.status(404).send({ data: "User not found! Try registering again" });
+	};
+
+	user.isVerified = true;
+	next();
 }
 
 import { hashPassword } from "../util/password.js";
